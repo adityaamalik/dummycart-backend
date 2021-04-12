@@ -65,6 +65,10 @@ const orderSchema = mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  state: {
+    type: String,
+    required: true,
+  },
 });
 
 orderSchema.virtual("id").get(function () {
