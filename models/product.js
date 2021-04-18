@@ -7,8 +7,8 @@ const productSchema = mongoose.Schema({
     required: true,
   },
   image: {
-    data: Buffer,
-    contentType: String,
+    type: String,
+    required: true,
   },
   description: {
     type: String,
@@ -16,8 +16,7 @@ const productSchema = mongoose.Schema({
   },
   images: [
     {
-      data: Buffer,
-      contentType: String,
+      type: String,
     },
   ],
   originalPrice: {

@@ -2,15 +2,27 @@ const { Blog } = require("../models/blog");
 const express = require("express");
 const router = express.Router();
 const multer = require("multer");
-const fs = require("fs");
-const path = require("path");
+
+const FILE_TYPE_MAP = {
+  "image/png": "png",
+  "image/jpeg": "jpeg",
+  "image/jpg": "jpg",
+};
 
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "public/uploads");
+  destination: function (req, file, cb) {
+    const isValid = FILE_TYPE_MAP[file.mimetype];
+    let uploadError = new Error("invalid image type");
+
+    if (isValid) {
+      uploadError = null;
+    }
+    cb(uploadError, "public/uploads");
   },
-  filename: (req, file, cb) => {
-    cb(null, file.fieldname + "-" + Date.now());
+  filename: function (req, file, cb) {
+    const fileName = file.originalname.split(" ").join("-");
+    const extension = FILE_TYPE_MAP[file.mimetype];
+    cb(null, `${fileName}-${Date.now()}.${extension}`);
   },
 });
 
@@ -35,30 +47,14 @@ router.get(`/:id`, async (req, res) => {
 router.post("/", uploadOptions.single("image"), async (req, res) => {
   const file = req.file;
   if (file) {
+    const fileName = file.filename;
+    const basePath = `${req.protocol}://${req.get("host")}/public/uploads/`;
     let blog = new Blog({
       title: req.body.title,
       content: req.body.content,
-      image: {
-        data: fs.readFileSync(
-          path.join(__dirname + "//../public/uploads/" + req.file.filename)
-        ),
-        contentType: "image/png",
-      },
+      image: `${basePath}${fileName}`,
     });
     blog = await blog.save();
-
-    if (blog) {
-      const directory = path.join(__dirname + "//../public/uploads/");
-      fs.readdir(directory, (err, files) => {
-        if (err) throw err;
-
-        for (const file of files) {
-          fs.unlink(path.join(directory, file), (err) => {
-            if (err) throw err;
-          });
-        }
-      });
-    }
 
     if (!blog) return res.status(400).send("the blog cannot be created!");
 
@@ -79,33 +75,17 @@ router.post("/", uploadOptions.single("image"), async (req, res) => {
 router.put("/:id", uploadOptions.single("image"), async (req, res) => {
   const file = req.file;
   if (file) {
+    const fileName = file.filename;
+    const basePath = `${req.protocol}://${req.get("host")}/public/uploads/`;
     let params = {
       title: req.body.title,
       content: req.body.content,
-      image: {
-        data: fs.readFileSync(
-          path.join(__dirname + "//../public/uploads/" + req.file.filename)
-        ),
-        contentType: "image/png",
-      },
+      image: `${basePath}${fileName}`,
     };
     for (let prop in params) if (!params[prop]) delete params[prop];
     const blog = await Blog.findByIdAndUpdate(req.params.id, params, {
       new: true,
     });
-
-    if (blog) {
-      const directory = path.join(__dirname + "//../public/uploads/");
-      fs.readdir(directory, (err, files) => {
-        if (err) throw err;
-
-        for (const file of files) {
-          fs.unlink(path.join(directory, file), (err) => {
-            if (err) throw err;
-          });
-        }
-      });
-    }
 
     if (!blog) return res.status(400).send("the blog cannot be created!");
 

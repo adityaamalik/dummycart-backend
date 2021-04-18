@@ -4,15 +4,27 @@ const { Category } = require("../models/category");
 const router = express.Router();
 const mongoose = require("mongoose");
 const multer = require("multer");
-const fs = require("fs");
-const path = require("path");
+
+const FILE_TYPE_MAP = {
+  "image/png": "png",
+  "image/jpeg": "jpeg",
+  "image/jpg": "jpg",
+};
 
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "public/uploads");
+  destination: function (req, file, cb) {
+    const isValid = FILE_TYPE_MAP[file.mimetype];
+    let uploadError = new Error("invalid image type");
+
+    if (isValid) {
+      uploadError = null;
+    }
+    cb(uploadError, "public/uploads");
   },
-  filename: (req, file, cb) => {
-    cb(null, file.fieldname + "-" + Date.now());
+  filename: function (req, file, cb) {
+    const fileName = file.originalname.split(" ").join("-");
+    const extension = FILE_TYPE_MAP[file.mimetype];
+    cb(null, `${fileName}-${Date.now()}.${extension}`);
   },
 });
 
@@ -72,15 +84,11 @@ router.post(`/`, uploadOptions.single("image"), async (req, res) => {
   const file = req.file;
 
   if (!file) return res.status(400).send("No image in the request");
-
+  const fileName = file.filename;
+  const basePath = `${req.protocol}://${req.get("host")}/public/uploads/`;
   let product = new Product({
     name: req.body.name,
-    image: {
-      data: fs.readFileSync(
-        path.join(__dirname + "//../public/uploads/" + req.file.filename)
-      ),
-      contentType: "image/png",
-    },
+    image: `${basePath}${fileName}`,
     description: req.body.description,
     images: req.body.images,
     originalPrice: req.body.originalPrice,
@@ -91,19 +99,6 @@ router.post(`/`, uploadOptions.single("image"), async (req, res) => {
   });
 
   product = await product.save();
-
-  if (product) {
-    const directory = path.join(__dirname + "//../public/uploads/");
-    fs.readdir(directory, (err, files) => {
-      if (err) throw err;
-
-      for (const file of files) {
-        fs.unlink(path.join(directory, file), (err) => {
-          if (err) throw err;
-        });
-      }
-    });
-  }
 
   if (!product) return res.status(500).send("The product cannot be created");
 
@@ -120,14 +115,11 @@ router.put("/:id", uploadOptions.single("image"), async (req, res) => {
   }
   const file = req.file;
   if (file) {
+    const fileName = file.filename;
+    const basePath = `${req.protocol}://${req.get("host")}/public/uploads/`;
     let params = {
       name: req.body.name,
-      image: {
-        data: fs.readFileSync(
-          path.join(__dirname + "//../public/uploads/" + req.file.filename)
-        ),
-        contentType: "image/png",
-      },
+      image: `${basePath}${fileName}`,
       description: req.body.description,
       originalPrice: req.body.originalPrice,
       discountedPrice: req.body.discountedPrice,
@@ -140,19 +132,6 @@ router.put("/:id", uploadOptions.single("image"), async (req, res) => {
     const product = await Product.findByIdAndUpdate(req.params.id, params, {
       new: true,
     });
-
-    if (product) {
-      const directory = path.join(__dirname + "//../public/uploads/");
-      fs.readdir(directory, (err, files) => {
-        if (err) throw err;
-
-        for (const file of files) {
-          fs.unlink(path.join(directory, file), (err) => {
-            if (err) throw err;
-          });
-        }
-      });
-    }
 
     if (!product) return res.status(500).send("the product cannot be updated!");
     res.send(product);
@@ -171,19 +150,6 @@ router.put("/:id", uploadOptions.single("image"), async (req, res) => {
     const product = await Product.findByIdAndUpdate(req.params.id, params, {
       new: true,
     });
-
-    if (product) {
-      const directory = path.join(__dirname + "//../public/uploads/");
-      fs.readdir(directory, (err, files) => {
-        if (err) throw err;
-
-        for (const file of files) {
-          fs.unlink(path.join(directory, file), (err) => {
-            if (err) throw err;
-          });
-        }
-      });
-    }
 
     if (!product) return res.status(500).send("the product cannot be updated!");
     res.send(product);
@@ -249,39 +215,22 @@ router.put(
       return res.status(400).send("Invalid Product Id");
     }
     const files = req.files;
-    let imgs = [];
+    let imagesPaths = [];
+    const basePath = `${req.protocol}://${req.get("host")}/public/uploads/`;
 
     if (files) {
       files.map((file) => {
-        imgs.push({
-          data: fs.readFileSync(
-            path.join(__dirname + "//../public/uploads/" + file.filename)
-          ),
-          contentType: "image/png",
-        });
+        imagesPaths.push(`${basePath}${file.filename}`);
       });
     }
 
     const product = await Product.findByIdAndUpdate(
       req.params.id,
       {
-        images: imgs,
+        images: imagesPaths,
       },
       { new: true }
     );
-
-    if (product) {
-      const directory = path.join(__dirname + "//../public/uploads/");
-      fs.readdir(directory, (err, files) => {
-        if (err) throw err;
-
-        for (const file of files) {
-          fs.unlink(path.join(directory, file), (err) => {
-            if (err) throw err;
-          });
-        }
-      });
-    }
 
     if (!product) return res.status(500).send("the gallery cannot be updated!");
 

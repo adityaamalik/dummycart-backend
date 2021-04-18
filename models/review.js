@@ -6,16 +6,14 @@ const reviewSchema = mongoose.Schema({
     required: true,
   },
   userimage: {
-    data: Buffer,
-    contentType: String,
+    type: String,
   },
   comment: {
     type: String,
     required: true,
   },
   commentimages: {
-    data: Buffer,
-    contentType: String,
+    type: String,
   },
   rating: {
     type: Number,
