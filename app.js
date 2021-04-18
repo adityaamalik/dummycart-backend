@@ -10,8 +10,6 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(cors());
 
-const PORT = "3000" || process.env.PORT;
-
 mongoose.connect(process.env.CONNECTION_STRING, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -42,4 +40,4 @@ app.get("/", (req, res) => {
   res.send("API is working fine !");
 });
 
-app.listen(PORT, () => console.log("Server is running on port : " + PORT));
+app.listen("3000" || process.env.PORT, () => console.log("Server is running"));
