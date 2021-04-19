@@ -40,4 +40,4 @@ app.get("/", (req, res) => {
   res.send("API is working fine !");
 });
 
-app.listen(process.env.PORT || "3000", () => console.log("Server is running"));
+app.listen("3000" || process.env.PORT, () => console.log("Server is running"));
