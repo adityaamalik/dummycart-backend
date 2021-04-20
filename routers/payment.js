@@ -3,6 +3,9 @@ const express = require("express");
 const Razorpay = require("razorpay");
 const crypto = require("crypto");
 const { Order } = require("../models/order");
+const sgMail = require("@sendgrid/mail");
+
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 const router = express.Router();
 
@@ -64,6 +67,28 @@ router.post("/success", async (req, res) => {
 
     if (!updatedOrder)
       return res.status(400).send("the order cannot be update!");
+
+    if (updatedOrder) {
+      const finalOrder = await Order.findById(ourOrderId);
+
+      if (finalOrder) {
+        const msg = {
+          to: finalOrder.email, // Change to your recipient
+          from: "aditya.malik.cs.2018@miet.ac.in", // Change to your verified sender
+          subject: "Order placed successfully at MyIndianThings.com",
+          text: "Thanks for your order at MyIndianThings.com",
+          html: "<strong>Thanks for your order at MyIndianThings.com</strong>",
+        };
+        sgMail
+          .send(msg)
+          .then(() => {
+            console.log("Email sent");
+          })
+          .catch((error) => {
+            console.error(error);
+          });
+      }
+    }
 
     res.json({
       msg: "Payment Successful",
