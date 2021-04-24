@@ -26,6 +26,7 @@ const reviewsRoutes = require("./routers/reviews");
 const blogsRoutes = require("./routers/blogs");
 const contactRoutes = require("./routers/contacts");
 const paymentRoutes = require("./routers/payment");
+const mailRoutes = require("./routers/mail");
 
 //routes
 app.use("/categories", categoriesRouter);
@@ -35,6 +36,7 @@ app.use("/reviews", reviewsRoutes);
 app.use("/blogs", blogsRoutes);
 app.use("/contacts", contactRoutes);
 app.use("/payment", paymentRoutes);
+app.use("/mail", mailRoutes);
 
 app.get("/", (req, res) => {
   res.send("API is working fine !");

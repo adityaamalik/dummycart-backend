@@ -76,8 +76,24 @@ router.post("/success", async (req, res) => {
           to: finalOrder.email, // Change to your recipient
           from: "aditya.malik.cs.2018@miet.ac.in", // Change to your verified sender
           subject: "Order placed successfully at MyIndianThings.com",
-          text: "Thanks for your order at MyIndianThings.com",
-          html: "<strong>Thanks for your order at MyIndianThings.com</strong>",
+          text: "Thanks for your order at Myindianthings.com",
+          html: `
+                <h1>Thanks for your order at MyIndianThings.com</h1>
+                <br />
+                <br />
+                <h3>Order Summary</h3>
+                <p>Name : ${finalOrder.name}</p>
+                <p>E-Mail : ${finalOrder.email}</p>
+                <p>Phone Number : ${finalOrder.phone}</p>
+                <p>Shipping Address 1 : ${finalOrder.shippingAddress1}</p>
+                <p>Shipping Address 2 : ${finalOrder.shippingAddress2}</p>
+                <p>State : ${finalOrder.state}</p>
+                <p>City : ${finalOrder.city}</p>
+                <p>Zip : ${finalOrder.zip}</p>
+                <br />
+                <br />
+                <h3>Total amount paid : ₹ ${finalOrder.totalPrice} /-</h3>
+              `,
         };
         sgMail
           .send(msg)

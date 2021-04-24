@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-const Category = require("../models/category");
 
 const productSchema = mongoose.Schema({
   name: {
@@ -14,29 +13,23 @@ const productSchema = mongoose.Schema({
     type: String,
     default: "",
   },
-  images: [
-    {
-      data: Buffer,
-      contentType: String,
-    },
-  ],
+  images: [],
+  totalColours: {
+    type: Number,
+    default: 0,
+  },
   originalPrice: {
     type: Number,
     required: true,
   },
-  discountedPrice: {
+  discountPercentage: {
     type: Number,
-    required: true,
+    default: 0,
   },
   isFeatured: {
     type: Boolean,
     default: false,
   },
-  colours: [
-    {
-      type: String,
-    },
-  ],
   category: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Category",
@@ -61,7 +54,7 @@ exports.Product = mongoose.model("Product", productSchema);
 //   "description": "req.body.description",
 //   "images": "req.body.images",
 //   "originalPrice": 10,
-//   "discountedPrice": 5,
+//   "discountPercentage": 5,
 //   "isFeatured":true,
 //   "colours": "req.body.colours",
 //   "category": "6058f35e9e4d6f4970521433"

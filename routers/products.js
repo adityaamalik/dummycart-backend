@@ -6,6 +6,7 @@ const mongoose = require("mongoose");
 const multer = require("multer");
 const fs = require("fs");
 const path = require("path");
+const async = require("async");
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -41,8 +42,6 @@ router.get("/newArrivals", async (req, res) => {
 
   if (!newarrivalsList) {
     res.status(500).json({ success: false });
-  } else {
-    console.log(newarrivalsList);
   }
   res.status(200).send(newarrivalsList);
 });
@@ -84,9 +83,8 @@ router.post(`/`, uploadOptions.single("image"), async (req, res) => {
     description: req.body.description,
     images: req.body.images,
     originalPrice: req.body.originalPrice,
-    discountedPrice: req.body.discountedPrice,
+    discountPercentage: req.body.discountPercentage,
     isFeatured: req.body.isFeatured,
-    colours: req.body.colours,
     category: req.body.category,
   });
 
@@ -130,9 +128,8 @@ router.put("/:id", uploadOptions.single("image"), async (req, res) => {
       },
       description: req.body.description,
       originalPrice: req.body.originalPrice,
-      discountedPrice: req.body.discountedPrice,
+      discountPercentage: req.body.discountPercentage,
       isFeatured: req.body.isFeatured,
-      colours: req.body.colours,
       category: req.body.category,
     };
     for (let prop in params) if (!params[prop]) delete params[prop];
@@ -162,7 +159,7 @@ router.put("/:id", uploadOptions.single("image"), async (req, res) => {
       image: req.body.image,
       description: req.body.description,
       originalPrice: req.body.originalPrice,
-      discountedPrice: req.body.discountedPrice,
+      discountPercentage: req.body.discountPercentage,
       isFeatured: req.body.isFeatured,
       colours: req.body.colours,
       category: req.body.category,
@@ -235,8 +232,6 @@ router.get("/get/newArrivals", async (req, res) => {
 
   if (!newarrivalsList) {
     res.status(500).json({ success: false });
-  } else {
-    console.log(newarrivalsList);
   }
   res.status(200).send(newarrivalsList);
 });
@@ -258,6 +253,7 @@ router.put(
             path.join(__dirname + "//../public/uploads/" + file.filename)
           ),
           contentType: "image/png",
+          customId: parseInt(Math.random() * 10000000),
         });
       });
     }
@@ -288,5 +284,57 @@ router.put(
     res.send(product);
   }
 );
+
+router.post("/colours/:id", async (req, res) => {
+  if (!mongoose.isValidObjectId(req.params.id)) {
+    return res.status(400).send("Invalid Product Id");
+  }
+
+  const product = await Product.findById(req.params.id);
+
+  const imgs = product.images;
+
+  const newImages = [];
+  async.eachSeries(imgs, (obj, done) => {
+    if (obj.customId === req.body.imageId) {
+      obj.colour = req.body.colour;
+    }
+    newImages.push(obj);
+    done();
+  });
+
+  Product.findByIdAndUpdate(req.params.id, {
+    images: newImages,
+    totalColours: product.totalColours + 1,
+  })
+    .then((r) => {
+      res.send(r);
+    })
+    .catch((e) => {
+      res.status(500).json({ error: e });
+    });
+});
+
+router.post("/setDiscount", async (req, res) => {
+  async.eachSeries(
+    req.body.products,
+    (obj, done) => {
+      Product.findByIdAndUpdate(
+        obj,
+        {
+          discountPercentage: req.body.discountPercentage,
+        },
+        done
+      );
+    },
+    (err) => {
+      if (err) {
+        res.status(500).json({ error: err });
+      } else {
+        res.send("success");
+      }
+    }
+  );
+});
 
 module.exports = router;
