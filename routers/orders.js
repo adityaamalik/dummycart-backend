@@ -43,6 +43,41 @@ router.post("/", async (req, res) => {
 
   if (!order) return res.status(400).send("the order cannot be created!");
 
+  if (order && req.body.paymentMethod === "COD") {
+    const msg = {
+      to: order.email, // Change to your recipient
+      from: "aditya.malik.cs.2018@miet.ac.in", // Change to your verified sender
+      subject: "Order placed successfully at MyIndianThings.com",
+      text: "Thanks for your order at Myindianthings.com",
+      html: `
+            <h1>Thanks for your order at MyIndianThings.com</h1>
+            <br />
+            <br />
+            <h3>Order Summary</h3>
+            <p>Name : ${order.name}</p>
+            <p>E-Mail : ${order.email}</p>
+            <p>Phone Number : ${order.phone}</p>
+            <p>Shipping Address 1 : ${order.shippingAddress1}</p>
+            <p>Shipping Address 2 : ${order.shippingAddress2}</p>
+            <p>State : ${order.state}</p>
+            <p>City : ${order.city}</p>
+            <p>Zip : ${order.zip}</p>
+            <p>Payment Method : ${order.paymentMethod}</p>
+            <br />
+            <br />
+            <h3>Total amount paid : ₹ ${order.totalPrice} /-</h3>
+          `,
+    };
+    sgMail
+      .send(msg)
+      .then(() => {
+        console.log("Email sent");
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }
+
   res.send(order);
 });
 
