@@ -17,9 +17,12 @@ const storage = multer.diskStorage({
 const uploadOptions = multer({ storage: storage });
 
 router.get(`/`, async (req, res) => {
-  const dirname = path.join(__dirname + "//../public/uploads/");
+  const categoryList = await Category.find();
 
-  res.send(dirname);
+  if (!categoryList) {
+    res.status(500).json({ success: false });
+  }
+  res.status(200).send(categoryList);
 });
 
 router.get("/:id", async (req, res) => {
@@ -37,12 +40,13 @@ router.post("/", uploadOptions.single("image"), async (req, res) => {
   const file = req.file;
   if (!file) return res.status(400).send("No image in the request");
 
+  const directory = path.join(
+    __dirname + "//../public/uploads/" + req.file.filename
+  );
   let category = new Category({
     name: req.body.name,
     image: {
-      data: fs.readFileSync(
-        path.join(__dirname + "//../public/uploads/" + req.file.filename)
-      ),
+      data: fs.readFileSync(directory),
       contentType: "image/png",
     },
   });
