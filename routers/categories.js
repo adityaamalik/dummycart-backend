@@ -17,12 +17,9 @@ const storage = multer.diskStorage({
 const uploadOptions = multer({ storage: storage });
 
 router.get(`/`, async (req, res) => {
-  const categoryList = await Category.find();
+  const dirname = path.join(__dirname + "//../public/uploads/");
 
-  if (!categoryList) {
-    res.status(500).json({ success: false });
-  }
-  res.status(200).send(categoryList);
+  res.send(dirname);
 });
 
 router.get("/:id", async (req, res) => {
