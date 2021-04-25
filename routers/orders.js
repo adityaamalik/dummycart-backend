@@ -37,6 +37,7 @@ router.post("/", async (req, res) => {
     email: req.body.email,
     name: req.body.name,
     state: req.body.state,
+    paymentMethod: req.body.paymentMethod,
   });
   order = await order.save();
 
