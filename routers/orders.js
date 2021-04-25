@@ -1,6 +1,9 @@
 const { Order } = require("../models/order");
 const express = require("express");
 const router = express.Router();
+const sgMail = require("@sendgrid/mail");
+
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 router.get(`/`, async (req, res) => {
   const orderList = await Order.find();
