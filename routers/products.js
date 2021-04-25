@@ -10,7 +10,7 @@ const async = require("async");
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, "public/uploads");
+    cb(null, path.join(__dirname + "//../public/uploads"));
   },
   filename: (req, file, cb) => {
     cb(null, file.fieldname + "-" + Date.now());
@@ -72,7 +72,9 @@ router.post(`/`, uploadOptions.single("image"), async (req, res) => {
 
   if (!file) return res.status(400).send("No image in the request");
 
-  console.log(__dirname + "//../public/uploads/" + req.file.filename);
+  console.log(
+    path.join(__dirname + "//../public/uploads/" + req.file.filename)
+  );
 
   let product = new Product({
     name: req.body.name,
