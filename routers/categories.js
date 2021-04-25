@@ -7,7 +7,7 @@ const path = require("path");
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, "public/uploads");
+    cb(null, path.join(__dirname, "/../../public/uploads/"));
   },
   filename: (req, file, cb) => {
     cb(null, file.fieldname + "-" + Date.now());
@@ -44,7 +44,7 @@ router.post("/", uploadOptions.single("image"), async (req, res) => {
     name: req.body.name,
     image: {
       data: fs.readFileSync(
-        path.join(__dirname + "//../../public/uploads/" + req.file.filename)
+        path.join(__dirname, "/../../public/uploads/" + req.file.filename)
       ),
       contentType: "image/png",
     },
@@ -54,7 +54,7 @@ router.post("/", uploadOptions.single("image"), async (req, res) => {
   if (!category) return res.status(400).send("the category cannot be created!");
 
   if (category) {
-    const directory = path.join(__dirname + "//../../public/uploads/");
+    const directory = path.join(__dirname, "/../../public/uploads/");
     fs.readdir(directory, (err, files) => {
       if (err) throw err;
 
