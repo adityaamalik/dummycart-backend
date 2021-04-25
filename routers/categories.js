@@ -54,6 +54,19 @@ router.post("/", uploadOptions.single("image"), async (req, res) => {
 
   if (!category) return res.status(400).send("the category cannot be created!");
 
+  if (category) {
+    const directory = path.join(__dirname + "//../public/uploads/");
+    fs.readdir(directory, (err, files) => {
+      if (err) throw err;
+
+      for (const file of files) {
+        fs.unlink(path.join(directory, file), (err) => {
+          if (err) throw err;
+        });
+      }
+    });
+  }
+
   res.send(category);
 });
 
