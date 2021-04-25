@@ -76,7 +76,7 @@ router.post(`/`, uploadOptions.single("image"), async (req, res) => {
     name: req.body.name,
     image: {
       data: fs.readFileSync(
-        path.join(__dirname + "//../../public/uploads/" + req.file.filename)
+        path.join(__dirname + "//../public/uploads/" + req.file.filename)
       ),
       contentType: "image/png",
     },
@@ -91,7 +91,7 @@ router.post(`/`, uploadOptions.single("image"), async (req, res) => {
   product = await product.save();
 
   if (product) {
-    const directory = path.join(__dirname + "//../../public/uploads/");
+    const directory = path.join(__dirname + "//../public/uploads/");
     fs.readdir(directory, (err, files) => {
       if (err) throw err;
 

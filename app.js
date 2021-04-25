@@ -2,7 +2,6 @@ const express = require("express");
 const mongoose = require("mongoose");
 require("dotenv/config");
 const cors = require("cors");
-const path = require("path");
 
 const app = express();
 app.use(express.json());
@@ -18,7 +17,7 @@ mongoose.connect(process.env.CONNECTION_STRING, {
   dbName: "myindianthingsDB",
 });
 
-app.use(express.static(path.join(__dirname, "/../../public/uploads/")));
+app.use("/public/uploads", express.static(__dirname + "/public/uploads"));
 
 const categoriesRouter = require("./routers/categories");
 const productsRouter = require("./routers/products");
