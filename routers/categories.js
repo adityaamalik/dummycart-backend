@@ -1,20 +1,6 @@
 const { Category } = require("../models/category");
 const express = require("express");
 const router = express.Router();
-const multer = require("multer");
-const fs = require("fs");
-const path = require("path");
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "public/uploads");
-  },
-  filename: (req, file, cb) => {
-    cb(null, file.fieldname + "-" + Date.now());
-  },
-});
-
-const uploadOptions = multer({ storage: storage });
 
 router.get(`/`, async (req, res) => {
   const categoryList = await Category.find();
@@ -36,93 +22,33 @@ router.get("/:id", async (req, res) => {
   res.status(200).send(category);
 });
 
-router.post("/", uploadOptions.single("image"), async (req, res) => {
-  const file = req.file;
-  if (!file) return res.status(400).send("No image in the request");
-
-  const directory = path.join(
-    __dirname + "//../public/uploads/" + req.file.filename
-  );
+router.post("/", async (req, res) => {
+  console.log(req.body);
   let category = new Category({
     name: req.body.name,
-    image: {
-      data: fs.readFileSync(directory),
-      contentType: "image/png",
-    },
+    image: req.body.image,
   });
   category = await category.save();
 
   if (!category) return res.status(400).send("the category cannot be created!");
 
-  if (category) {
-    const directory = path.join(__dirname + "//../public/uploads/");
-    fs.readdir(directory, (err, files) => {
-      if (err) throw err;
-
-      for (const file of files) {
-        if (file !== "demo.txt") {
-          fs.unlink(path.join(directory, file), (err) => {
-            if (err) throw err;
-          });
-        }
-      }
-    });
-  }
-
   res.send(category);
 });
 
-router.put("/:id", uploadOptions.single("image"), async (req, res) => {
-  const file = req.file;
+router.put("/:id", async (req, res) => {
+  let params = {
+    name: req.body.name,
+    image: req.body.image,
+  };
+  for (let prop in params) if (!params[prop]) delete params[prop];
 
-  if (file) {
-    let params = {
-      name: req.body.name,
-      image: {
-        data: fs.readFileSync(
-          path.join(__dirname + "//../public/uploads/" + req.file.filename)
-        ),
-        contentType: "image/png",
-      },
-    };
-    for (let prop in params) if (!params[prop]) delete params[prop];
-    const category = await Category.findByIdAndUpdate(req.params.id, params, {
-      new: true,
-    });
+  const category = await Category.findByIdAndUpdate(req.params.id, params, {
+    new: true,
+  });
 
-    if (category) {
-      const directory = path.join(__dirname + "//../public/uploads/");
-      fs.readdir(directory, (err, files) => {
-        if (err) throw err;
+  if (!category) return res.status(400).send("the category cannot be created!");
 
-        for (const file of files) {
-          if (file !== "demo.txt") {
-            fs.unlink(path.join(directory, file), (err) => {
-              if (err) throw err;
-            });
-          }
-        }
-      });
-    }
-
-    if (!category)
-      return res.status(400).send("the category cannot be created!");
-
-    res.send(category);
-  } else {
-    let params = {
-      name: req.body.name,
-    };
-    for (let prop in params) if (!params[prop]) delete params[prop];
-    const category = await Category.findByIdAndUpdate(req.params.id, params, {
-      new: true,
-    });
-
-    if (!category)
-      return res.status(400).send("the category cannot be created!");
-
-    res.send(category);
-  }
+  res.send(category);
 });
 
 router.delete("/:id", (req, res) => {

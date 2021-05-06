@@ -3,21 +3,7 @@ const express = require("express");
 const { Category } = require("../models/category");
 const router = express.Router();
 const mongoose = require("mongoose");
-const multer = require("multer");
-const fs = require("fs");
-const path = require("path");
 const async = require("async");
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "public/uploads");
-  },
-  filename: (req, file, cb) => {
-    cb(null, file.fieldname + "-" + Date.now());
-  },
-});
-
-const uploadOptions = multer({ storage: storage });
 
 router.get(`/`, async (req, res) => {
   // localhost:3000/products?categories=2342342,234234
@@ -64,53 +50,43 @@ router.get(`/:id`, async (req, res) => {
   res.send(product);
 });
 
-router.post(`/`, uploadOptions.single("image"), async (req, res) => {
+router.post(`/`, async (req, res) => {
   const category = await Category.findById(req.body.category);
   if (!category) return res.status(400).send("Invalid Category");
 
-  const file = req.file;
-
-  if (!file) return res.status(400).send("No image in the request");
-
   let product = new Product({
     name: req.body.name,
-    image: {
-      data: fs.readFileSync(
-        path.join(__dirname + "//../public/uploads/" + req.file.filename)
-      ),
-      contentType: "image/png",
-    },
+    image: req.body.image,
     description: req.body.description,
-    images: req.body.images,
+    galleryImage1: req.body.galleryImage1,
+    color1: req.body.color1,
+    galleryImage2: req.body.galleryImage2,
+    color2: req.body.color2,
+    galleryImage3: req.body.galleryImage3,
+    color3: req.body.color3,
+    galleryImage4: req.body.galleryImage4,
+    color4: req.body.color4,
+    galleryImage5: req.body.galleryImage5,
+    color5: req.body.color5,
+    galleryImage6: req.body.galleryImage6,
+    color6: req.body.color6,
+    galleryImage7: req.body.galleryImage7,
+    color7: req.body.color7,
     originalPrice: req.body.originalPrice,
     discountPercentage: req.body.discountPercentage,
     isFeatured: req.body.isFeatured,
     category: req.body.category,
+    inStock: req.body.inStock,
   });
 
   product = await product.save();
-
-  if (product) {
-    const directory = path.join(__dirname + "//../public/uploads/");
-    fs.readdir(directory, (err, files) => {
-      if (err) throw err;
-
-      for (const file of files) {
-        if (file !== "demo.txt") {
-          fs.unlink(path.join(directory, file), (err) => {
-            if (err) throw err;
-          });
-        }
-      }
-    });
-  }
 
   if (!product) return res.status(500).send("The product cannot be created");
 
   res.send(product);
 });
 
-router.put("/:id", uploadOptions.single("image"), async (req, res) => {
+router.put("/:id", async (req, res) => {
   if (req.body.category) {
     if (!mongoose.isValidObjectId(req.params.id)) {
       return res.status(400).send("Invalid Product Id");
@@ -118,79 +94,38 @@ router.put("/:id", uploadOptions.single("image"), async (req, res) => {
     const category = await Category.findById(req.body.category);
     if (!category) return res.status(400).send("Invalid Category");
   }
-  const file = req.file;
-  if (file) {
-    let params = {
-      name: req.body.name,
-      image: {
-        data: fs.readFileSync(
-          path.join(__dirname + "//../public/uploads/" + req.file.filename)
-        ),
-        contentType: "image/png",
-      },
-      description: req.body.description,
-      originalPrice: req.body.originalPrice,
-      discountPercentage: req.body.discountPercentage,
-      isFeatured: req.body.isFeatured,
-      category: req.body.category,
-    };
-    for (let prop in params) if (!params[prop]) delete params[prop];
+  let params = {
+    name: req.body.name,
+    image: req.body.image,
+    description: req.body.description,
+    originalPrice: req.body.originalPrice,
+    galleryImage1: req.body.galleryImage1,
+    color1: req.body.color1,
+    galleryImage2: req.body.galleryImage2,
+    color2: req.body.color2,
+    galleryImage3: req.body.galleryImage3,
+    color3: req.body.color3,
+    galleryImage4: req.body.galleryImage4,
+    color4: req.body.color4,
+    galleryImage5: req.body.galleryImage5,
+    color5: req.body.color5,
+    galleryImage6: req.body.galleryImage6,
+    color6: req.body.color6,
+    galleryImage7: req.body.galleryImage7,
+    color7: req.body.color7,
+    discountPercentage: req.body.discountPercentage,
+    isFeatured: req.body.isFeatured,
+    category: req.body.category,
+    inStock: req.body.inStock,
+  };
+  for (let prop in params) if (!params[prop]) delete params[prop];
 
-    const product = await Product.findByIdAndUpdate(req.params.id, params, {
-      new: true,
-    });
+  const product = await Product.findByIdAndUpdate(req.params.id, params, {
+    new: true,
+  });
 
-    if (product) {
-      const directory = path.join(__dirname + "//../public/uploads/");
-      fs.readdir(directory, (err, files) => {
-        if (err) throw err;
-
-        for (const file of files) {
-          if (file !== "demo.txt") {
-            fs.unlink(path.join(directory, file), (err) => {
-              if (err) throw err;
-            });
-          }
-        }
-      });
-    }
-
-    if (!product) return res.status(500).send("the product cannot be updated!");
-    res.send(product);
-  } else {
-    let params = {
-      name: req.body.name,
-      image: req.body.image,
-      description: req.body.description,
-      originalPrice: req.body.originalPrice,
-      discountPercentage: req.body.discountPercentage,
-      isFeatured: req.body.isFeatured,
-      colours: req.body.colours,
-      category: req.body.category,
-    };
-    for (let prop in params) if (!params[prop]) delete params[prop];
-    const product = await Product.findByIdAndUpdate(req.params.id, params, {
-      new: true,
-    });
-
-    if (product) {
-      const directory = path.join(__dirname + "//../public/uploads/");
-      fs.readdir(directory, (err, files) => {
-        if (err) throw err;
-
-        for (const file of files) {
-          if (file !== "demo.txt") {
-            fs.unlink(path.join(directory, file), (err) => {
-              if (err) throw err;
-            });
-          }
-        }
-      });
-    }
-
-    if (!product) return res.status(500).send("the product cannot be updated!");
-    res.send(product);
-  }
+  if (!product) return res.status(500).send("the product cannot be updated!");
+  res.send(product);
 });
 
 router.delete("/:id", (req, res) => {
@@ -242,87 +177,6 @@ router.get("/get/newArrivals", async (req, res) => {
   res.status(200).send(newarrivalsList);
 });
 
-router.put(
-  "/gallery-images/:id",
-  uploadOptions.array("images", 10),
-  async (req, res) => {
-    if (!mongoose.isValidObjectId(req.params.id)) {
-      return res.status(400).send("Invalid Product Id");
-    }
-    const files = req.files;
-    let imgs = [];
-
-    if (files) {
-      files.map((file) => {
-        imgs.push({
-          data: fs.readFileSync(
-            path.join(__dirname + "//../public/uploads/" + file.filename)
-          ),
-          contentType: "image/png",
-          customId: parseInt(Math.random() * 10000000),
-        });
-      });
-    }
-
-    const product = await Product.findByIdAndUpdate(
-      req.params.id,
-      {
-        images: imgs,
-      },
-      { new: true }
-    );
-
-    if (product) {
-      const directory = path.join(__dirname + "//../public/uploads/");
-      fs.readdir(directory, (err, files) => {
-        if (err) throw err;
-
-        for (const file of files) {
-          if (file !== "demo.txt") {
-            fs.unlink(path.join(directory, file), (err) => {
-              if (err) throw err;
-            });
-          }
-        }
-      });
-    }
-
-    if (!product) return res.status(500).send("the gallery cannot be updated!");
-
-    res.send(product);
-  }
-);
-
-router.post("/colours/:id", async (req, res) => {
-  if (!mongoose.isValidObjectId(req.params.id)) {
-    return res.status(400).send("Invalid Product Id");
-  }
-
-  const product = await Product.findById(req.params.id);
-
-  const imgs = product.images;
-
-  const newImages = [];
-  async.eachSeries(imgs, (obj, done) => {
-    if (obj.customId === req.body.imageId) {
-      obj.colour = req.body.colour;
-    }
-    newImages.push(obj);
-    done();
-  });
-
-  Product.findByIdAndUpdate(req.params.id, {
-    images: newImages,
-    totalColours: product.totalColours + 1,
-  })
-    .then((r) => {
-      res.send(r);
-    })
-    .catch((e) => {
-      res.status(500).json({ error: e });
-    });
-});
-
 router.post("/setDiscount", async (req, res) => {
   async.eachSeries(
     req.body.products,
@@ -331,6 +185,28 @@ router.post("/setDiscount", async (req, res) => {
         obj,
         {
           discountPercentage: req.body.discountPercentage,
+        },
+        done
+      );
+    },
+    (err) => {
+      if (err) {
+        res.status(500).json({ error: err });
+      } else {
+        res.send("success");
+      }
+    }
+  );
+});
+
+router.post("/setInStock", async (req, res) => {
+  async.eachSeries(
+    req.body.products,
+    (obj, done) => {
+      Product.findByIdAndUpdate(
+        obj,
+        {
+          inStock: req.body.inStock,
         },
         done
       );
