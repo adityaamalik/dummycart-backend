@@ -54,23 +54,55 @@ router.post(`/`, async (req, res) => {
   const category = await Category.findById(req.body.category);
   if (!category) return res.status(400).send("Invalid Category");
 
+  const imgURI =
+    req.body.image.replace("dropbox", "dl.dropboxusercontent") ||
+    req.body.image;
+
+  const gimg1 =
+    req.body.image.replace("dropbox", "dl.dropboxusercontent") ||
+    req.body.galleryImage1;
+
+  const gimg2 =
+    req.body.image.replace("dropbox", "dl.dropboxusercontent") ||
+    req.body.galleryImage2;
+
+  const gimg3 =
+    req.body.image.replace("dropbox", "dl.dropboxusercontent") ||
+    req.body.galleryImage3;
+
+  const gimg4 =
+    req.body.image.replace("dropbox", "dl.dropboxusercontent") ||
+    req.body.galleryImage4;
+
+  const gimg5 =
+    req.body.image.replace("dropbox", "dl.dropboxusercontent") ||
+    req.body.galleryImage5;
+
+  const gimg6 =
+    req.body.image.replace("dropbox", "dl.dropboxusercontent") ||
+    req.body.galleryImage6;
+
+  const gimg7 =
+    req.body.image.replace("dropbox", "dl.dropboxusercontent") ||
+    req.body.galleryImage7;
+
   let product = new Product({
     name: req.body.name,
-    image: req.body.image,
+    image: imgURI,
     description: req.body.description,
-    galleryImage1: req.body.galleryImage1,
+    galleryImage1: gimg1,
     color1: req.body.color1,
-    galleryImage2: req.body.galleryImage2,
+    galleryImage2: gimg2,
     color2: req.body.color2,
-    galleryImage3: req.body.galleryImage3,
+    galleryImage3: gimg3,
     color3: req.body.color3,
-    galleryImage4: req.body.galleryImage4,
+    galleryImage4: gimg4,
     color4: req.body.color4,
-    galleryImage5: req.body.galleryImage5,
+    galleryImage5: gimg5,
     color5: req.body.color5,
-    galleryImage6: req.body.galleryImage6,
+    galleryImage6: gimg6,
     color6: req.body.color6,
-    galleryImage7: req.body.galleryImage7,
+    galleryImage7: gimg7,
     color7: req.body.color7,
     originalPrice: req.body.originalPrice,
     discountPercentage: req.body.discountPercentage,
@@ -94,24 +126,66 @@ router.put("/:id", async (req, res) => {
     const category = await Category.findById(req.body.category);
     if (!category) return res.status(400).send("Invalid Category");
   }
+
+  let imgURI = req.body.image;
+  let gimg1 = req.body.galleryImage1;
+  let gimg2 = req.body.galleryImage2;
+  let gimg3 = req.body.galleryImage3;
+  let gimg4 = req.body.galleryImage4;
+  let gimg5 = req.body.galleryImage5;
+  let gimg6 = req.body.galleryImage6;
+  let gimg7 = req.body.galleryImage7;
+
+  if (imgURI.includes("dropbox") && !imgURI.includes("dl.dropboxusercontent")) {
+    imgURI = req.body.image.replace("dropbox", "dl.dropboxusercontent");
+  }
+
+  if (gimg1.includes("dropbox") && !gimg1.includes("dl.dropboxusercontent")) {
+    gimg1 = req.body.galleryImage1.replace("dropbox", "dl.dropboxusercontent");
+  }
+
+  if (gimg2.includes("dropbox") && !gimg2.includes("dl.dropboxusercontent")) {
+    gimg2 = req.body.galleryImage2.replace("dropbox", "dl.dropboxusercontent");
+  }
+
+  if (gimg3.includes("dropbox") && !gimg3.includes("dl.dropboxusercontent")) {
+    gimg3 = req.body.galleryImage3.replace("dropbox", "dl.dropboxusercontent");
+  }
+
+  if (gimg4.includes("dropbox") && !gimg4.includes("dl.dropboxusercontent")) {
+    gimg4 = req.body.galleryImage4.replace("dropbox", "dl.dropboxusercontent");
+  }
+
+  if (gimg5.includes("dropbox") && !gimg5.includes("dl.dropboxusercontent")) {
+    gimg5 = req.body.galleryImage5.replace("dropbox", "dl.dropboxusercontent");
+  }
+
+  if (gimg6.includes("dropbox") && !gimg6.includes("dl.dropboxusercontent")) {
+    gimg6 = req.body.galleryImage6.replace("dropbox", "dl.dropboxusercontent");
+  }
+
+  if (gimg7.includes("dropbox") && !gimg7.includes("dl.dropboxusercontent")) {
+    gimg7 = req.body.galleryImage7.replace("dropbox", "dl.dropboxusercontent");
+  }
+
   let params = {
     name: req.body.name,
-    image: req.body.image,
+    image: imgURI,
     description: req.body.description,
     originalPrice: req.body.originalPrice,
-    galleryImage1: req.body.galleryImage1,
+    galleryImage1: gimg1,
     color1: req.body.color1,
-    galleryImage2: req.body.galleryImage2,
+    galleryImage2: gimg2,
     color2: req.body.color2,
-    galleryImage3: req.body.galleryImage3,
+    galleryImage3: gimg3,
     color3: req.body.color3,
-    galleryImage4: req.body.galleryImage4,
+    galleryImage4: gimg4,
     color4: req.body.color4,
-    galleryImage5: req.body.galleryImage5,
+    galleryImage5: gimg5,
     color5: req.body.color5,
-    galleryImage6: req.body.galleryImage6,
+    galleryImage6: gimg6,
     color6: req.body.color6,
-    galleryImage7: req.body.galleryImage7,
+    galleryImage7: gimg7,
     color7: req.body.color7,
     discountPercentage: req.body.discountPercentage,
     isFeatured: req.body.isFeatured,

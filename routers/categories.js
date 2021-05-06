@@ -23,10 +23,13 @@ router.get("/:id", async (req, res) => {
 });
 
 router.post("/", async (req, res) => {
-  console.log(req.body);
+  const imgURI =
+    req.body.image.replace("dropbox", "dl.dropboxusercontent") ||
+    req.body.image;
+
   let category = new Category({
     name: req.body.name,
-    image: req.body.image,
+    image: imgURI,
   });
   category = await category.save();
 
@@ -36,9 +39,13 @@ router.post("/", async (req, res) => {
 });
 
 router.put("/:id", async (req, res) => {
+  let imgURI = req.body.image;
+  if (imgURI.includes("dropbox") && !imgURI.includes("dl.dropboxusercontent")) {
+    imgURI = req.body.image.replace("dropbox", "dl.dropboxusercontent");
+  }
   let params = {
     name: req.body.name,
-    image: req.body.image,
+    image: imgURI,
   };
   for (let prop in params) if (!params[prop]) delete params[prop];
 

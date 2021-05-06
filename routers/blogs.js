@@ -19,10 +19,13 @@ router.get(`/:id`, async (req, res) => {
 });
 
 router.post("/", async (req, res) => {
+  const imgURI =
+    req.body.image.replace("dropbox", "dl.dropboxusercontent") ||
+    req.body.image;
   let blog = new Blog({
     title: req.body.title,
     content: req.body.content,
-    image: req.body.image,
+    image: imgURI,
   });
   blog = await blog.save();
 
@@ -32,10 +35,14 @@ router.post("/", async (req, res) => {
 });
 
 router.put("/:id", async (req, res) => {
+  let imgURI = req.body.image;
+  if (imgURI.includes("dropbox") && !imgURI.includes("dl.dropboxusercontent")) {
+    imgURI = req.body.image.replace("dropbox", "dl.dropboxusercontent");
+  }
   let params = {
     title: req.body.title,
     content: req.body.content,
-    image: req.body.image,
+    image: imgURI,
   };
   for (let prop in params) if (!params[prop]) delete params[prop];
   const blog = await Blog.findByIdAndUpdate(req.params.id, params, {
