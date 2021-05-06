@@ -59,31 +59,31 @@ router.post(`/`, async (req, res) => {
     req.body.image;
 
   const gimg1 =
-    req.body.image.replace("dropbox", "dl.dropboxusercontent") ||
+    req.body.galleryImage1.replace("dropbox", "dl.dropboxusercontent") ||
     req.body.galleryImage1;
 
   const gimg2 =
-    req.body.image.replace("dropbox", "dl.dropboxusercontent") ||
+    req.body.galleryImage2.replace("dropbox", "dl.dropboxusercontent") ||
     req.body.galleryImage2;
 
   const gimg3 =
-    req.body.image.replace("dropbox", "dl.dropboxusercontent") ||
+    req.body.galleryImage3.replace("dropbox", "dl.dropboxusercontent") ||
     req.body.galleryImage3;
 
   const gimg4 =
-    req.body.image.replace("dropbox", "dl.dropboxusercontent") ||
+    req.body.galleryImage4.replace("dropbox", "dl.dropboxusercontent") ||
     req.body.galleryImage4;
 
   const gimg5 =
-    req.body.image.replace("dropbox", "dl.dropboxusercontent") ||
+    req.body.galleryImage5.replace("dropbox", "dl.dropboxusercontent") ||
     req.body.galleryImage5;
 
   const gimg6 =
-    req.body.image.replace("dropbox", "dl.dropboxusercontent") ||
+    req.body.galleryImage6.replace("dropbox", "dl.dropboxusercontent") ||
     req.body.galleryImage6;
 
   const gimg7 =
-    req.body.image.replace("dropbox", "dl.dropboxusercontent") ||
+    req.body.galleryImage7.replace("dropbox", "dl.dropboxusercontent") ||
     req.body.galleryImage7;
 
   let product = new Product({
