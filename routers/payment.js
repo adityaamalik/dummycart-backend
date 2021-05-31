@@ -75,10 +75,10 @@ router.post("/success", async (req, res) => {
         const msg = {
           to: finalOrder.email, // Change to your recipient
           from: "aditya.malik.cs.2018@miet.ac.in", // Change to your verified sender
-          subject: "Order placed successfully at MyIndianThings.com",
-          text: "Thanks for your order at Myindianthings.com",
+          subject: "Order placed successfully at DummyStore.com",
+          text: "Thanks for your order at DummyStore.com",
           html: `
-                <h1>Thanks for your order at MyIndianThings.com</h1>
+                <h1>Thanks for your order at DummyStore.com</h1>
                 <br />
                 <br />
                 <h3>Order Summary</h3>
